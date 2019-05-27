@@ -155,8 +155,6 @@ class TriggerRuleDep(BaseTIDep):
             elif tr == TR.NONE_FAILED:
                 if upstream_failed or failed:
                     ti.set_state(State.UPSTREAM_FAILED, session)
-                elif skipped == upstream:
-                    ti.set_state(State.SKIPPED, session)
             elif tr == TR.NONE_SKIPPED:
                 if skipped:
                     ti.set_state(State.SKIPPED, session)
