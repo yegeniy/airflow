@@ -17,10 +17,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import ast
 from airflow.contrib.hooks.emr_hook import EmrHook
 from airflow.contrib.sensors.emr_base_sensor import EmrBaseSensor
-from airflow.utils import apply_defaults
+from airflow.contrib.sensors.emr_job_flow_sensor import EmrJobFlowSensor
+from airflow.utils.decorators import apply_defaults
 
 
 class EmrRunJobFlows(EmrBaseSensor):
@@ -90,11 +90,11 @@ class EmrRunJobFlows(EmrBaseSensor):
 
     def execute(self, context):
         self.log.info(
-            "The clusters will be submitted across the following batches: "
-            + [set(batch.keys()) for batch in self.job_flows])
+            "The clusters will be submitted across the following batches: " +
+            [set(batch.keys()) for batch in self.job_flows])
         # TODO: Verify all clusters set `"KeepJobFlowAliveWhenNoSteps": False`
         # if self.require_auto_termination
-        super().execute(context)
+        return super().execute(context)
 
     # override for EmrBaseSensor
     def get_emr_response(self):
@@ -109,11 +109,12 @@ class EmrRunJobFlows(EmrBaseSensor):
         self.log.debug("Poked JobFlow states: " + self.states())
 
         for failed in filter(lambda r: self._state_of(r) in
-               EmrRunJobFlows.FAILED_STATE, responses):
+                             EmrRunJobFlows.FAILED_STATE, responses):
             self.log.info("there is at least one failed JobFlow")
             return failed
         for non_terminal in filter(lambda r: self._state_of(r) in
-                EmrRunJobFlows.NON_TERMINAL_STATES, responses):
+                                   EmrRunJobFlows.NON_TERMINAL_STATES,
+                                   responses):
             self.log.info("there is still at least one non-terminal JobFlow")
             return non_terminal
 
@@ -124,8 +125,8 @@ class EmrRunJobFlows(EmrBaseSensor):
             return self.get_emr_response()
         # All batches are in a terminal state
         else:
-            self.log.info("Completed poking all JobFlow batches: "
-                + self.statuses)
+            self.log.info("Completed poking all JobFlow batches: " +
+                          self.statuses)
             return responses[0]
 
     def request_next(self, cluster_set, emr_conn):
@@ -140,8 +141,7 @@ class EmrRunJobFlows(EmrBaseSensor):
                 job_flow_id = response["JobFlowId"]
                 self.current_batch[name] = job_flow_id
                 self.states()[name] = (job_flow_id, "")
-        self.log.info("Requested JobFlow batch: "
-            + self.current_batch)
+        self.log.info("Requested JobFlow batch: " + self.current_batch)
 
         # TODO: consider cancelling the other cluster_set if len(errors) > 0...
         # e.g.: return {"statuses": statuses, "errors": errors}
