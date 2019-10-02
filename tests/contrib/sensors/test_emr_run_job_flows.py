@@ -26,6 +26,7 @@ from dateutil.tz import tzlocal
 from airflow import AirflowException
 from airflow import DAG
 from airflow.contrib.sensors.emr_run_job_flows import EmrRunJobFlows
+from airflow.utils import timezone
 
 
 DEFAULT_DATE = timezone.datetime(2017, 1, 1)
