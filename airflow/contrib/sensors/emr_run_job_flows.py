@@ -48,16 +48,18 @@ class EmrRunJobFlows(EmrBaseSensor):
     `"ActionOnFailure": "TERMINATE_CLUSTER"` to allow failing-fast if your
     workflow allows for it.
 
-    [1]: https://docs.aws.amazon.com/emr/latest/ManagementGuide/UsingEMR_TerminationProtection.html#emr-termination-protection-steps
+    [1]: https://docs.aws.amazon.com/emr/latest/ManagementGuide/
+         UsingEMR_TerminationProtection.html#emr-termination-protection-steps
 
     :param job_flows: jinja-templated str representing a queue of EMR JobFlows.
     A list of dicts, each one mapping job_flow names to their configurations:
         [{job_flow_name: job_flow_overrides}]
-    Each dict in the list represents the job flows which should run in parallel, 
-    and every cluster in the preceding dict is expected to have come to a 
+    Each dict in the list represents the job flows which should run in parallel,
+    and every cluster in the preceding dict is expected to have come to a
     successful terminal state, prior to submitting the next dict. (templated)
     boto3's job_flow_overrides EMR details are in [2].
-    [2]: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/emr.html#EMR.Client.run_job_flow
+    [2]: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/
+         services/emr.html#EMR.Client.run_job_flow
     :type job_flows: str
     """
 
@@ -87,9 +89,9 @@ class EmrRunJobFlows(EmrBaseSensor):
         # self.statuses = []
 
     def execute(self, context):
-        self.log.info((
+        self.log.info(
             "The clusters will be submitted across the following batches: "
-            + [set(batch.keys()) for batch in self.job_flows]))
+            + [set(batch.keys()) for batch in self.job_flows])
         # TODO: Verify all clusters set `"KeepJobFlowAliveWhenNoSteps": False`
         # if self.require_auto_termination
         super().execute(context)
@@ -107,11 +109,11 @@ class EmrRunJobFlows(EmrBaseSensor):
         self.log.debug("Poked JobFlow states: " + self.states())
 
         for failed in filter(lambda r: self._state_of(r) in
-                                       EmrRunJobFlows.FAILED_STATE, responses):
+               EmrRunJobFlows.FAILED_STATE, responses):
             self.log.info("there is at least one failed JobFlow")
             return failed
         for non_terminal in filter(lambda r: self._state_of(r) in
-                                EmrRunJobFlows.NON_TERMINAL_STATES, responses):
+                EmrRunJobFlows.NON_TERMINAL_STATES, responses):
             self.log.info("there is still at least one non-terminal JobFlow")
             return non_terminal
 
@@ -147,8 +149,7 @@ class EmrRunJobFlows(EmrBaseSensor):
             self.log.error("errors: " + errors)
 
     def states(self):
-        if len(self.statuses) > 0: return self.statuses[-1]
-        else: return {}
+        return self.statuses[-1] if len(self.statuses) > 0 else {}
 
     @staticmethod
     def _state_of(response):
