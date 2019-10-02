@@ -29,6 +29,7 @@ from airflow.utils import timezone
 
 DEFAULT_DATE = timezone.datetime(2017, 1, 1)
 
+
 class TestEmrRunJobFlows(unittest.TestCase):
     def setUp(self):
         args = {
