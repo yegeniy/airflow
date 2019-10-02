@@ -24,8 +24,11 @@ from unittest.mock import MagicMock, patch
 from dateutil.tz import tzlocal
 
 from airflow import AirflowException
+from airflow import DAG
 from airflow.contrib.sensors.emr_run_job_flows import EmrRunJobFlows
 
+
+DEFAULT_DATE = timezone.datetime(2017, 1, 1)
 
 class TestEmrRunJobFlows(unittest.TestCase):
     def setUp(self):
@@ -116,7 +119,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.emr_client_mock.describe_cluster.side_effect = calls
         with patch('boto3.session.Session', self.boto3_session_mock):
             self.emr_run_job_flows.execute(None)
-            self._assertWeMade(len(calls))
+            self._assertWeMade(calls)
 
     def test_execute_fails_fast_when_cluster2b_fails(self):
         calls = [
@@ -146,12 +149,11 @@ class TestEmrRunJobFlows(unittest.TestCase):
             with self.assertRaises(AirflowException):
                 self.emr_run_job_flows.execute(None)
 
-                self._assertWeMade(len(calls))
+                self._assertWeMade(calls)
 
-    def _assertWeMade(self, n_calls):
+    def _assertWeMade(self, calls):
         self.assertEqual(
-            self.emr_client_mock.describe_cluster.call_count,
-            len(calls))
+            self.emr_client_mock.describe_cluster.call_count, len(calls))
 
 
 # Convenience methods for describing clusters
