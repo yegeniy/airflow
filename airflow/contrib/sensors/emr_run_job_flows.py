@@ -17,10 +17,11 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import ast
 from airflow.contrib.hooks.emr_hook import EmrHook
 from airflow.contrib.sensors.emr_base_sensor import EmrBaseSensor
 from airflow.utils import apply_defaults
-import ast
+
 
 class EmrRunJobFlows(EmrBaseSensor):
     """

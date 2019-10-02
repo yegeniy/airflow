@@ -17,13 +17,15 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import unittest
 from unittest.mock import MagicMock, patch
-import datetime
+
 from dateutil.tz import tzlocal
 
 from airflow import AirflowException
 from airflow.contrib.sensors.emr_run_job_flows import EmrRunJobFlows
+
 
 class TestEmrRunJobFlows(unittest.TestCase):
     def setUp(self):
