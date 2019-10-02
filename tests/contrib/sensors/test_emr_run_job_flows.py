@@ -137,7 +137,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
             _describe_cluster("cluster2a", "RUNNING"),                 # a
             _describe_cluster("cluster2b", "RUNNING"),                 # b
             _describe_cluster("cluster2a", "TERMINATING"),             # a
-            _describe_cluster("cluster2b", "TERMINATED_WITH_ERRORS"),  # b 
+            _describe_cluster("cluster2b", "TERMINATED_WITH_ERRORS"),  # b
             # We expect that no more calls are to be made, even though cluster3
             # hasn't even started and cluster2a isn't yet terminated.
         ]
@@ -152,6 +152,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.assertEqual(
             self.emr_client_mock.describe_cluster.call_count,
             len(calls))
+
 
 # Convenience methods for describing clusters
 def running_cluster(self, name, state="RUNNING"):
@@ -263,7 +264,7 @@ def failed_cluster(self, name):
     }
 
 
-def _describe_cluster(named, state)
+def _describe_cluster(named, state):
     return {
         'TERMINATED': terminated_cluster(named),
         'TERMINATED_WITH_ERRORS': failed_cluster(named),
