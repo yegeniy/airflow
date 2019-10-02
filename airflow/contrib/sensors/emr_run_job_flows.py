@@ -89,7 +89,7 @@ class EmrRunJobFlows(EmrBaseSensor):
     def execute(self, context):
         self.log.info((
             "The clusters will be submitted across the following batches: "
-            f"{[set(batch.keys()) for batch in self.job_flows]}"))
+            + [set(batch.keys()) for batch in self.job_flows]))
         # TODO: Verify all clusters set `"KeepJobFlowAliveWhenNoSteps": False`
         # if self.require_auto_termination
         super().execute(context)
@@ -100,11 +100,11 @@ class EmrRunJobFlows(EmrBaseSensor):
 
         responses = []
         for name, job_flow_id in self.current_batch.items():
-            self.log.debug(f"Poking JobFlow {{{name}: {job_flow_id}}}")
+            self.log.debug("Poking JobFlow {" + name + ": " + job_flow_id + "}")
             response = emr_conn.describe_cluster(ClusterId=job_flow_id)
             responses.append(response)
             self.states()[name] = (job_flow_id, self._state_of(response))
-        self.log.debug(f"Poked JobFlow states: {self.states()}")
+        self.log.debug("Poked JobFlow states: " + self.states())
 
         for failed in filter(lambda r: self._state_of(r) in
                                        EmrRunJobFlows.FAILED_STATE, responses):
@@ -123,7 +123,7 @@ class EmrRunJobFlows(EmrBaseSensor):
         # All batches are in a terminal state
         else:
             self.log.info("Completed poking all JobFlow batches: "
-                f"{self.statuses}")
+                + self.statuses)
             return responses[0]
 
     def request_next(self, cluster_set, emr_conn):
@@ -138,12 +138,13 @@ class EmrRunJobFlows(EmrBaseSensor):
                 job_flow_id = response["JobFlowId"]
                 self.current_batch[name] = job_flow_id
                 self.states()[name] = (job_flow_id, "")
-        self.log.info(f"Requested JobFlow batch: {self.current_batch}")
+        self.log.info("Requested JobFlow batch: "
+            + self.current_batch)
 
         # TODO: consider cancelling the other cluster_set if len(errors) > 0...
         # e.g.: return {"statuses": statuses, "errors": errors}
         if errors:
-            self.log.error(f"errors: {errors}")
+            self.log.error("errors: " + errors)
 
     def states(self):
         if len(self.statuses) > 0: return self.statuses[-1]
