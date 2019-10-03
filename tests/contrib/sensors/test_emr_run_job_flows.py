@@ -155,122 +155,118 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.assertEqual(
             self.emr_client_mock.describe_cluster.call_count, len(calls))
 
-
-# Convenience methods for describing clusters
-def running_cluster(name, state="RUNNING"):
-    return {
-        'Cluster': {
-            'Applications': [
-                {'Name': 'Spark', 'Version': '1.6.1'}
-            ],
-            'AutoTerminate': True,
-            'Configurations': [],
-            'Ec2InstanceAttributes': {'IamInstanceProfile': 'EMR_EC2_DefaultRole'},
-            'Id': 'j-' + name,
-            'LogUri': 's3n://some-location/',
-            'Name': 'PiCalc',
-            'NormalizedInstanceHours': 0,
-            'ReleaseLabel': 'emr-4.6.0',
-            'ServiceRole': 'EMR_DefaultRole',
-            'Status': {
-                'State': state,
-                'StateChangeReason': {},
-                'Timeline': {
-                    'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
-            },
-            'Tags': [
-                {'Key': 'app', 'Value': 'analytics'},
-                {'Key': 'environment', 'Value': 'development'}
-            ],
-            'TerminationProtected': False,
-            'VisibleToAllUsers': True
-        },
-        'ResponseMetadata': {
-            'HTTPStatusCode': 200,
-            'RequestId': 'd5456308-3caa-11e6-9d46-951401f04e0e'
-        }
-    }
-
-
-def terminated_cluster(name):
-    return {
-        'Cluster': {
-            'Applications': [
-                {'Name': 'Spark', 'Version': '1.6.1'}
-            ],
-            'AutoTerminate': True,
-            'Configurations': [],
-            'Ec2InstanceAttributes': {'IamInstanceProfile': 'EMR_EC2_DefaultRole'},
-            'Id': 'j-' + name,
-            'LogUri': 's3n://some-location/',
-            'Name': 'PiCalc',
-            'NormalizedInstanceHours': 0,
-            'ReleaseLabel': 'emr-4.6.0',
-            'ServiceRole': 'EMR_DefaultRole',
-            'Status': {
-                'State': 'TERMINATED',
-                'StateChangeReason': {},
-                'Timeline': {
-                    'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
-            },
-            'Tags': [
-                {'Key': 'app', 'Value': 'analytics'},
-                {'Key': 'environment', 'Value': 'development'}
-            ],
-            'TerminationProtected': False,
-            'VisibleToAllUsers': True
-        },
-        'ResponseMetadata': {
-            'HTTPStatusCode': 200,
-            'RequestId': 'd5456308-3caa-11e6-9d46-951401f04e0e'
-        }
-    }
-
-
-def failed_cluster(name):
-    return {
-        'Cluster': {
-            'Applications': [
-                {'Name': 'Spark', 'Version': '1.6.1'}
-            ],
-            'AutoTerminate': True,
-            'Configurations': [],
-            'Ec2InstanceAttributes': {'IamInstanceProfile': 'EMR_EC2_DefaultRole'},
-            'Id': 'j-' + name,
-            'LogUri': 's3n://some-location/',
-            'Name': 'PiCalc',
-            'NormalizedInstanceHours': 0,
-            'ReleaseLabel': 'emr-4.6.0',
-            'ServiceRole': 'EMR_DefaultRole',
-            'Status': {
-                'State': 'TERMINATED_WITH_ERRORS',
-                'StateChangeReason': {
-                    'Code': 'BOOTSTRAP_FAILURE',
-                    'Message': 'Master instance (i-0663047709b12345c) failed attempting to '
-                               'download bootstrap action 1 file from S3'
+    # Convenience methods for describing clusters
+    def _running_cluster(self, name, state="RUNNING"):
+        return {
+            'Cluster': {
+                'Applications': [
+                    {'Name': 'Spark', 'Version': '1.6.1'}
+                ],
+                'AutoTerminate': True,
+                'Configurations': [],
+                'Ec2InstanceAttributes': {'IamInstanceProfile': 'EMR_EC2_DefaultRole'},
+                'Id': 'j-' + name,
+                'LogUri': 's3n://some-location/',
+                'Name': 'PiCalc',
+                'NormalizedInstanceHours': 0,
+                'ReleaseLabel': 'emr-4.6.0',
+                'ServiceRole': 'EMR_DefaultRole',
+                'Status': {
+                    'State': state,
+                    'StateChangeReason': {},
+                    'Timeline': {
+                        'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
                 },
-                'Timeline': {
-                    'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
+                'Tags': [
+                    {'Key': 'app', 'Value': 'analytics'},
+                    {'Key': 'environment', 'Value': 'development'}
+                ],
+                'TerminationProtected': False,
+                'VisibleToAllUsers': True
             },
-            'Tags': [
-                {'Key': 'app', 'Value': 'analytics'},
-                {'Key': 'environment', 'Value': 'development'}
-            ],
-            'TerminationProtected': False,
-            'VisibleToAllUsers': True
-        },
-        'ResponseMetadata': {
-            'HTTPStatusCode': 200,
-            'RequestId': 'd5456308-3caa-11e6-9d46-951401f04e0e'
+            'ResponseMetadata': {
+                'HTTPStatusCode': 200,
+                'RequestId': 'd5456308-3caa-11e6-9d46-951401f04e0e'
+            }
         }
-    }
 
+    def _terminated_cluster(self, name):
+        return {
+            'Cluster': {
+                'Applications': [
+                    {'Name': 'Spark', 'Version': '1.6.1'}
+                ],
+                'AutoTerminate': True,
+                'Configurations': [],
+                'Ec2InstanceAttributes': {'IamInstanceProfile': 'EMR_EC2_DefaultRole'},
+                'Id': 'j-' + name,
+                'LogUri': 's3n://some-location/',
+                'Name': 'PiCalc',
+                'NormalizedInstanceHours': 0,
+                'ReleaseLabel': 'emr-4.6.0',
+                'ServiceRole': 'EMR_DefaultRole',
+                'Status': {
+                    'State': 'TERMINATED',
+                    'StateChangeReason': {},
+                    'Timeline': {
+                        'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
+                },
+                'Tags': [
+                    {'Key': 'app', 'Value': 'analytics'},
+                    {'Key': 'environment', 'Value': 'development'}
+                ],
+                'TerminationProtected': False,
+                'VisibleToAllUsers': True
+            },
+            'ResponseMetadata': {
+                'HTTPStatusCode': 200,
+                'RequestId': 'd5456308-3caa-11e6-9d46-951401f04e0e'
+            }
+        }
 
-def _describe_cluster(named, state):
-    return {
-        'TERMINATED': terminated_cluster(named),
-        'TERMINATED_WITH_ERRORS': failed_cluster(named),
-    }.get(state, running_cluster(named, state))
+    def _failed_cluster(self, name):
+        return {
+            'Cluster': {
+                'Applications': [
+                    {'Name': 'Spark', 'Version': '1.6.1'}
+                ],
+                'AutoTerminate': True,
+                'Configurations': [],
+                'Ec2InstanceAttributes': {'IamInstanceProfile': 'EMR_EC2_DefaultRole'},
+                'Id': 'j-' + name,
+                'LogUri': 's3n://some-location/',
+                'Name': 'PiCalc',
+                'NormalizedInstanceHours': 0,
+                'ReleaseLabel': 'emr-4.6.0',
+                'ServiceRole': 'EMR_DefaultRole',
+                'Status': {
+                    'State': 'TERMINATED_WITH_ERRORS',
+                    'StateChangeReason': {
+                        'Code': 'BOOTSTRAP_FAILURE',
+                        'Message': 'Master instance (i-0663047709b12345c) failed attempting to '
+                                   'download bootstrap action 1 file from S3'
+                    },
+                    'Timeline': {
+                        'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
+                },
+                'Tags': [
+                    {'Key': 'app', 'Value': 'analytics'},
+                    {'Key': 'environment', 'Value': 'development'}
+                ],
+                'TerminationProtected': False,
+                'VisibleToAllUsers': True
+            },
+            'ResponseMetadata': {
+                'HTTPStatusCode': 200,
+                'RequestId': 'd5456308-3caa-11e6-9d46-951401f04e0e'
+            }
+        }
+
+    def _describe_cluster(self, named, state):
+        return {
+            'TERMINATED': self._terminated_cluster(named),
+            'TERMINATED_WITH_ERRORS': self._failed_cluster(named),
+        }.get(state, self._running_cluster(named, state))
 
 
 if __name__ == '__main__':
