@@ -80,6 +80,9 @@ class EmrRunJobFlows(EmrBaseSensor):
             emr_conn_id='emr_default',
             # require_auto_termination = False,
             *args, **kwargs):
+        """
+        C0111
+        """
         super().__init__(*args, **kwargs)
         self.job_flows = job_flows
         self.emr_conn_id = emr_conn_id
@@ -88,6 +91,9 @@ class EmrRunJobFlows(EmrBaseSensor):
         self.statuses = []
 
     def execute(self, context):
+        """
+        C0111
+        """
         self.log.info(
             "The clusters will be submitted across the following batches: %s",
             [set(batch.keys()) for batch in self.job_flows])
@@ -97,6 +103,9 @@ class EmrRunJobFlows(EmrBaseSensor):
 
     # override for EmrBaseSensor
     def get_emr_response(self):
+        """
+        C0111
+        """
         emr_conn = EmrHook(emr_conn_id=self.emr_conn_id).get_conn()
 
         responses = []
@@ -129,6 +138,9 @@ class EmrRunJobFlows(EmrBaseSensor):
             return responses[0]
 
     def request_next(self, cluster_set, emr_conn):
+        """
+        C0111
+        """
         self.current_batch = {}
         self.statuses.append({})
         errors = {}
@@ -148,19 +160,32 @@ class EmrRunJobFlows(EmrBaseSensor):
             self.log.error("errors: %s", errors)
 
     def states(self):
+        """
+        C0111
+        """
         return self.statuses[-1] if self.statuses else {}
 
     @staticmethod
     def _state_of(response):
+        """
+        C0111
+        """
         return response.get("Cluster", {}).get("Status", {}).get("State", "")
 
     # override for EmrBaseSensor. Not using _state_of(), since
     # state_from_response expects an exception raised if the cluster State is
     # not present.
     @staticmethod
+
     def state_from_response(response):
+        """
+        C0111
+        """
         return EmrJobFlowSensor.state_from_response(response)
 
     @staticmethod
     def failure_message_from_response(response):
+        """
+        C0111
+        """
         return EmrJobFlowSensor.failure_message_from_response(response)
