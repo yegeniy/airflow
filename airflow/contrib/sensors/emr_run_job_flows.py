@@ -61,6 +61,7 @@ class EmrRunJobFlows(EmrBaseSensor):
     v1/documentation/api/latest/reference/services/emr.html
     #EMR.Client.run_job_flow
     :type job_flows: str
+
     """
 
     template_fields = ['job_flows']
