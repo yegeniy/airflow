@@ -176,7 +176,6 @@ class EmrRunJobFlows(EmrBaseSensor):
     # state_from_response expects an exception raised if the cluster State is
     # not present.
     @staticmethod
-
     def state_from_response(response):
         """
         C0111
