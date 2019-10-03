@@ -53,13 +53,13 @@ class EmrRunJobFlows(EmrBaseSensor):
 
     :param job_flows: jinja-templated str representing a queue of EMR JobFlows.
     A list of dicts, each one mapping job_flow names to their configurations:
-        [{job_flow_name: job_flow_overrides}]
+      [{job_flow_name: job_flow_overrides}]
     Each dict in the list represents the job flows which should run in parallel,
     and every cluster in the preceding dict is expected to have come to a
     successful terminal state, prior to submitting the next dict. (templated)
-    boto3's job_flow_overrides EMR details are in [2].
-    [2]: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/
-         services/emr.html#EMR.Client.run_job_flow
+    boto3's job_flow_overrides EMR details are in https://boto3.amazonaws.com/
+    v1/documentation/api/latest/reference/services/emr.html
+    #EMR.Client.run_job_flow 
     :type job_flows: str
     """
 
@@ -75,22 +75,20 @@ class EmrRunJobFlows(EmrBaseSensor):
     @apply_defaults
     def __init__(
             self,
-            job_flows=[],
-            # aws_conn_id="s3_default",
+            job_flows,
             emr_conn_id='emr_default',
             # require_auto_termination = False,
             *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.job_flows = job_flows
-        # self.aws_conn_id = aws_conn_id
         self.emr_conn_id = emr_conn_id
         # These two fields will be filled in as clusters are requested and poked
         self.current_batch = {}
-        # self.statuses = []
+        self.statuses = []
 
     def execute(self, context):
         self.log.info(
-            "The clusters will be submitted across the following batches: " +
+            "The clusters will be submitted across the following batches: %s",
             [set(batch.keys()) for batch in self.job_flows])
         # TODO: Verify all clusters set `"KeepJobFlowAliveWhenNoSteps": False`
         # if self.require_auto_termination
@@ -102,11 +100,11 @@ class EmrRunJobFlows(EmrBaseSensor):
 
         responses = []
         for name, job_flow_id in self.current_batch.items():
-            self.log.debug("Poking JobFlow {" + name + ": " + job_flow_id + "}")
+            self.log.debug("Poking JobFlow {%s: %s}", name, job_flow_id)
             response = emr_conn.describe_cluster(ClusterId=job_flow_id)
             responses.append(response)
             self.states()[name] = (job_flow_id, self._state_of(response))
-        self.log.debug("Poked JobFlow states: " + self.states())
+        self.log.debug("Poked JobFlow states: %s", self.states())
 
         for failed in filter(lambda r: self._state_of(r) in
                              EmrRunJobFlows.FAILED_STATE, responses):
@@ -119,13 +117,13 @@ class EmrRunJobFlows(EmrBaseSensor):
             return non_terminal
 
         # We're done with the current batch.
-        if len(self.job_flows) > 0:
+        if self.job_flows:
             self.log.info("Submitting next batch of clusters")
             self.request_next(self.job_flows.pop(0), emr_conn)
             return self.get_emr_response()
         # All batches are in a terminal state
         else:
-            self.log.info("Completed poking all JobFlow batches: " +
+            self.log.info("Completed poking all JobFlow batches: %s",
                           self.statuses)
             return responses[0]
 
@@ -141,15 +139,15 @@ class EmrRunJobFlows(EmrBaseSensor):
                 job_flow_id = response["JobFlowId"]
                 self.current_batch[name] = job_flow_id
                 self.states()[name] = (job_flow_id, "")
-        self.log.info("Requested JobFlow batch: " + self.current_batch)
+        self.log.info("Requested JobFlow batch: %s", self.current_batch)
 
         # TODO: consider cancelling the other cluster_set if len(errors) > 0...
         # e.g.: return {"statuses": statuses, "errors": errors}
         if errors:
-            self.log.error("errors: " + errors)
+            self.log.error("errors: %s", errors)
 
     def states(self):
-        return self.statuses[-1] if len(self.statuses) > 0 else {}
+        return self.statuses[-1] if self.statuses else {}
 
     @staticmethod
     def _state_of(response):
