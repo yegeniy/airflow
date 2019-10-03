@@ -18,6 +18,7 @@
 # under the License.
 """EmrRunJobFlows manages cluster queue by implementing an EMR sensor."""
 
+from airflow import AirflowException
 from airflow.contrib.hooks.emr_hook import EmrHook
 from airflow.contrib.sensors.emr_base_sensor import EmrBaseSensor
 from airflow.contrib.sensors.emr_job_flow_sensor import EmrJobFlowSensor
@@ -158,7 +159,7 @@ class EmrRunJobFlows(EmrBaseSensor):
         # TODO consider returning {"statuses": statuses, "errors": errors}
         if errors:
             self.log.error("errors: %s", errors)
-            raise AirflowException('JobFlow creation failed: %s' % errors)
+            raise AirflowException('JobFlow creation failed: ' + errors)
 
     def states(self):
         """
