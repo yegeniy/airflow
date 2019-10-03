@@ -59,7 +59,7 @@ class EmrRunJobFlows(EmrBaseSensor):
     successful terminal state, prior to submitting the next dict. (templated)
     boto3's job_flow_overrides EMR details are in https://boto3.amazonaws.com/
     v1/documentation/api/latest/reference/services/emr.html
-    #EMR.Client.run_job_flow 
+    #EMR.Client.run_job_flow
     :type job_flows: str
     """
 
