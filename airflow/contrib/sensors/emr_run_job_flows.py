@@ -155,10 +155,10 @@ class EmrRunJobFlows(EmrBaseSensor):
                 self.states()[name] = (job_flow_id, "")
         self.log.info("Requested JobFlow batch: %s", self.current_batch)
 
-        # TODO: consider cancelling the other cluster_set if len(errors) > 0...
-        # e.g.: return {"statuses": statuses, "errors": errors}
+        # TODO consider returning {"statuses": statuses, "errors": errors}
         if errors:
             self.log.error("errors: %s", errors)
+            raise AirflowException('JobFlow creation failed: %s' % errors)
 
     def states(self):
         """

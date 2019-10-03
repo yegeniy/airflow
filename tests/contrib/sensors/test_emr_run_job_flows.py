@@ -82,78 +82,99 @@ class TestEmrRunJobFlows(unittest.TestCase):
         }
 
     def test_execute_calls_until_all_clusters_reach_a_terminal_state(self):
-        calls = [
-            # First, cluster1 is queried until it terminates
-            self._describe_cluster("cluster1", "STARTING"),
-            self._describe_cluster("cluster1", "BOOTSTRAPPING"),
-            self._describe_cluster("cluster1", "RUNNING"),
-            self._describe_cluster("cluster1", "RUNNING"),
-            self._describe_cluster("cluster1", "TERMINATING"),
-            self._describe_cluster("cluster1", "TERMINATED"),      # (EOBatch)
-            # Then, both cluster2a and cluster2b are queried
-            self._describe_cluster("cluster2a", "STARTING"),       # a
-            self._describe_cluster("cluster2b", "STARTING"),       # b
-            self._describe_cluster("cluster2a", "BOOTSTRAPPING"),  # a
-            self._describe_cluster("cluster2b", "BOOTSTRAPPING"),  # b
-            self._describe_cluster("cluster2a", "RUNNING"),        # a
-            self._describe_cluster("cluster2b", "RUNNING"),        # b
-            self._describe_cluster("cluster2a", "RUNNING"),        # a
-            self._describe_cluster("cluster2b", "RUNNING"),        # b
-            self._describe_cluster("cluster2a", "RUNNING"),        # a
-            self._describe_cluster("cluster2b", "TERMINATING"),    # b
-            self._describe_cluster("cluster2a", "RUNNING"),        # a
-            self._describe_cluster("cluster2b", "TERMINATED"),     # b: terminal
-            self._describe_cluster("cluster2a", "RUNNING"),        # a
-            self._describe_cluster("cluster2b", "TERMINATING"),    # a
-            self._describe_cluster("cluster2b", "TERMINATED"),     # b: terminal
-            self._describe_cluster("cluster2b", "TERMINATED"),     # a (EOBatch)
-            self._describe_cluster("cluster2b", "TERMINATED"),     # b (EOBatch)
-            # Finally, cluster3 is queried until it terminates
-            self._describe_cluster("clusters3", "STARTING"),
-            self._describe_cluster("clusters3", "BOOTSTRAPPING"),
-            self._describe_cluster("clusters3", "RUNNING"),
-            self._describe_cluster("clusters3", "RUNNING"),
-            self._describe_cluster("clusters3", "TERMINATING"),
-            self._describe_cluster("clusters3", "TERMINATED"),     # (all done)
+        create_calls = [
+            self._create("cluster1"),
+            self._create("cluster2a"),
+            self._create("cluster2b"),
+            self._create("cluster3"),
         ]
-        self.emr_client_mock.describe_cluster.side_effect = calls
-        with patch('boto3.session.Session', self.boto3_session_mock):
-            self.emr_run_job_flows.execute(None)
-            self._assert_we_made(calls)
+        describe_calls = [
+            # First, cluster1 then queried until it terminates
+            self._describe("cluster1", "STARTING"),
+            self._describe("cluster1", "BOOTSTRAPPING"),
+            self._describe("cluster1", "RUNNING"),
+            self._describe("cluster1", "RUNNING"),
+            self._describe("cluster1", "TERMINATING"),
+            self._describe("cluster1", "TERMINATED"),      # (EOBatch)
+            # Then, both cluster2a and cluster2b are queried
+            self._describe("cluster2a", "STARTING"),       # a
+            self._describe("cluster2b", "STARTING"),       # b
+            self._describe("cluster2a", "BOOTSTRAPPING"),  # a
+            self._describe("cluster2b", "BOOTSTRAPPING"),  # b
+            self._describe("cluster2a", "RUNNING"),        # a
+            self._describe("cluster2b", "RUNNING"),        # b
+            self._describe("cluster2a", "RUNNING"),        # a
+            self._describe("cluster2b", "RUNNING"),        # b
+            self._describe("cluster2a", "RUNNING"),        # a
+            self._describe("cluster2b", "TERMINATING"),    # b
+            self._describe("cluster2a", "RUNNING"),        # a
+            self._describe("cluster2b", "TERMINATED"),     # b: terminal
+            self._describe("cluster2a", "RUNNING"),        # a
+            self._describe("cluster2b", "TERMINATING"),    # a
+            self._describe("cluster2b", "TERMINATED"),     # b: terminal
+            self._describe("cluster2b", "TERMINATED"),     # a (EOBatch)
+            self._describe("cluster2b", "TERMINATED"),     # b (EOBatch)
+            # Finally, cluster3 then queried until it terminates
+            self._describe("clusters3", "STARTING"),
+            self._describe("clusters3", "BOOTSTRAPPING"),
+            self._describe("clusters3", "RUNNING"),
+            self._describe("clusters3", "RUNNING"),
+            self._describe("clusters3", "TERMINATING"),
+            self._describe("clusters3", "TERMINATED"),     # (all done)
+        ]
+
+        self._expect(create_calls, describe_calls)
 
     def test_execute_fails_fast_when_cluster2b_fails(self):
-        calls = [
+        create_calls = [
+            self._create("cluster1"),
+        ]
+        describe_calls = [
             # First, cluster1 is queried until it terminates
-            self._describe_cluster("cluster1", "STARTING"),
-            self._describe_cluster("cluster1", "BOOTSTRAPPING"),
-            self._describe_cluster("cluster1", "RUNNING"),
-            self._describe_cluster("cluster1", "RUNNING"),
-            self._describe_cluster("cluster1", "TERMINATING"),
-            self._describe_cluster("cluster1", "TERMINATED"),
+            self._describe("cluster1", "STARTING"),
+            self._describe("cluster1", "BOOTSTRAPPING"),
+            self._describe("cluster1", "RUNNING"),
+            self._describe("cluster1", "RUNNING"),
+            self._describe("cluster1", "TERMINATING"),
+            self._describe("cluster1", "TERMINATED"),
             # Then, both cluster2a and cluster2b are queried
-            self._describe_cluster("cluster2a", "STARTING"),                # a
-            self._describe_cluster("cluster2b", "STARTING"),                # b
-            self._describe_cluster("cluster2a", "BOOTSTRAPPING"),           # a
-            self._describe_cluster("cluster2b", "BOOTSTRAPPING"),           # b
-            self._describe_cluster("cluster2a", "RUNNING"),                 # a
-            self._describe_cluster("cluster2b", "RUNNING"),                 # b
-            self._describe_cluster("cluster2a", "RUNNING"),                 # a
-            self._describe_cluster("cluster2b", "RUNNING"),                 # b
-            self._describe_cluster("cluster2a", "TERMINATING"),             # a
-            self._describe_cluster("cluster2b", "TERMINATED_WITH_ERRORS"),  # b
+            self._describe("cluster2a", "STARTING"),                # a
+            self._describe("cluster2b", "STARTING"),                # b
+            self._describe("cluster2a", "BOOTSTRAPPING"),           # a
+            self._describe("cluster2b", "BOOTSTRAPPING"),           # b
+            self._describe("cluster2a", "RUNNING"),                 # a
+            self._describe("cluster2b", "RUNNING"),                 # b
+            self._describe("cluster2a", "RUNNING"),                 # a
+            self._describe("cluster2b", "RUNNING"),                 # b
+            self._describe("cluster2a", "TERMINATING"),             # a
+            self._describe("cluster2b", "TERMINATED_WITH_ERRORS"),  # b
             # We expect that no more calls are to be made, even though cluster3
             # hasn't even started and cluster2a isn't yet terminated.
         ]
-        self.emr_client_mock.describe_cluster.side_effect = calls
+
+        self._expect(create_calls, describe_calls, failure=True)
+
+    def _expect(self, create_calls, describe_calls, failure=False):
+        self.emr_client_mock.describe_cluster.side_effect = self._describe
+        self.emr_client_mock.run_job_flow.side_effect = self._create
         with patch('boto3.session.Session', self.boto3_session_mock):
-            with self.assertRaises(AirflowException):
-                self.emr_run_job_flows.execute(None)
+            if failure:
+                with self.assertRaises(AirflowException):
+                    self._verify_call_counts(create_calls, describe_calls)
+            else:
+                self._verify_call_counts(create_calls, describe_calls)
 
-                self._assert_we_made(calls)
+    def _verify_call_counts(self, create_calls, describe_calls):
+        self.emr_run_job_flows.execute(None)
+        self._assert_we_made(self.emr_client_mock.run_job_flow, create_calls)
+        self._assert_we_made(self.emr_client_mock.describe_cluster,
+                             describe_calls)
 
-    def _assert_we_made(self, calls):
-        self.assertEqual(
-            self.emr_client_mock.describe_cluster.call_count, len(calls))
+    # def test_execute_fails_fast_on_cluster_creation(self):
+        # TODO: assertRaises(AirflowException):...
+
+    def _assert_we_made(self, mock, calls):
+        self.assertEqual(mock.call_count, len(calls))
 
     # Convenience methods for describing clusters
     def _running_cluster(self, name, state="RUNNING"):
@@ -265,11 +286,19 @@ class TestEmrRunJobFlows(unittest.TestCase):
             }
         }
 
-    def _describe_cluster(self, named, state):
+    def _describe(self, named, state):
         return {
             'TERMINATED': self._terminated_cluster(named),
             'TERMINATED_WITH_ERRORS': self._failed_cluster(named),
         }.get(state, self._running_cluster(named, state))
+
+    def _create(self, name):
+        return {
+            'ResponseMetadata': {
+                'HTTPStatusCode': 200
+            },
+            'JobFlowId': 'j-' + name
+        }
 
 
 if __name__ == '__main__':
