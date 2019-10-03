@@ -119,7 +119,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.emr_client_mock.describe_cluster.side_effect = calls
         with patch('boto3.session.Session', self.boto3_session_mock):
             self.emr_run_job_flows.execute(None)
-            self._assertWeMade(calls)
+            self._assert_we_made(calls)
 
     def test_execute_fails_fast_when_cluster2b_fails(self):
         calls = [
@@ -149,15 +149,15 @@ class TestEmrRunJobFlows(unittest.TestCase):
             with self.assertRaises(AirflowException):
                 self.emr_run_job_flows.execute(None)
 
-                self._assertWeMade(calls)
+                self._assert_we_made(calls)
 
-    def _assertWeMade(self, calls):
+    def _assert_we_made(self, calls):
         self.assertEqual(
             self.emr_client_mock.describe_cluster.call_count, len(calls))
 
 
 # Convenience methods for describing clusters
-def running_cluster(self, name, state="RUNNING"):
+def running_cluster(name, state="RUNNING"):
     return {
         'Cluster': {
             'Applications': [
@@ -192,7 +192,7 @@ def running_cluster(self, name, state="RUNNING"):
     }
 
 
-def terminated_cluster(self, name):
+def terminated_cluster(name):
     return {
         'Cluster': {
             'Applications': [
@@ -227,7 +227,7 @@ def terminated_cluster(self, name):
     }
 
 
-def failed_cluster(self, name):
+def failed_cluster(name):
     return {
         'Cluster': {
             'Applications': [
