@@ -175,7 +175,8 @@ class TestEmrRunJobFlows(unittest.TestCase):
                     'State': state,
                     'StateChangeReason': {},
                     'Timeline': {
-                        'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
+                        'CreationDateTime': datetime.datetime(
+                            2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
                 },
                 'Tags': [
                     {'Key': 'app', 'Value': 'analytics'},
@@ -248,7 +249,8 @@ class TestEmrRunJobFlows(unittest.TestCase):
                                    'download bootstrap action 1 file from S3'
                     },
                     'Timeline': {
-                        'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
+                        'CreationDateTime': datetime.datetime(
+                            2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
                 },
                 'Tags': [
                     {'Key': 'app', 'Value': 'analytics'},
@@ -263,7 +265,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
             }
         }
 
-    def self._describe_cluster(self, named, state):
+    def _describe_cluster(self, named, state):
         return {
             'TERMINATED': self._terminated_cluster(named),
             'TERMINATED_WITH_ERRORS': self._failed_cluster(named),
