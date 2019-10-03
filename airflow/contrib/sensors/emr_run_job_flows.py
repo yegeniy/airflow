@@ -48,8 +48,8 @@ class EmrRunJobFlows(EmrBaseSensor):
     `"ActionOnFailure": "TERMINATE_CLUSTER"` to allow failing-fast if your
     workflow allows for it.
 
-    [1]: https://docs.aws.amazon.com/emr/latest/ManagementGuide/
-         UsingEMR_TerminationProtection.html#emr-termination-protection-steps
+    [1]: https://docs.aws.amazon.com/emr/latest/ManagementGuide/\
+    UsingEMR_TerminationProtection.html#emr-termination-protection-steps
 
     :param job_flows: jinja-templated str representing a queue of EMR JobFlows.
     A list of dicts, each one mapping job_flow names to their configurations:
@@ -57,8 +57,8 @@ class EmrRunJobFlows(EmrBaseSensor):
     Each dict in the list represents the job flows which should run in parallel,
     and every cluster in the preceding dict is expected to have come to a
     successful terminal state, prior to submitting the next dict. (templated)
-    boto3's job_flow_overrides EMR details are in https://boto3.amazonaws.com/
-    v1/documentation/api/latest/reference/services/emr.html
+    boto3's job_flow_overrides EMR details are in https://boto3.amazonaws.com/\
+    v1/documentation/api/latest/reference/services/emr.html\
     #EMR.Client.run_job_flow
     :type job_flows: str
 
