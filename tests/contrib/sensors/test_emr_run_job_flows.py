@@ -84,37 +84,37 @@ class TestEmrRunJobFlows(unittest.TestCase):
     def test_execute_calls_until_all_clusters_reach_a_terminal_state(self):
         calls = [
             # First, cluster1 is queried until it terminates
-            _describe_cluster("cluster1", "STARTING"),
-            _describe_cluster("cluster1", "BOOTSTRAPPING"),
-            _describe_cluster("cluster1", "RUNNING"),
-            _describe_cluster("cluster1", "RUNNING"),
-            _describe_cluster("cluster1", "TERMINATING"),
-            _describe_cluster("cluster1", "TERMINATED"),      # (end of batch)
+            self._describe_cluster("cluster1", "STARTING"),
+            self._describe_cluster("cluster1", "BOOTSTRAPPING"),
+            self._describe_cluster("cluster1", "RUNNING"),
+            self._describe_cluster("cluster1", "RUNNING"),
+            self._describe_cluster("cluster1", "TERMINATING"),
+            self._describe_cluster("cluster1", "TERMINATED"),      # (EOBatch)
             # Then, both cluster2a and cluster2b are queried
-            _describe_cluster("cluster2a", "STARTING"),       # a
-            _describe_cluster("cluster2b", "STARTING"),       # b
-            _describe_cluster("cluster2a", "BOOTSTRAPPING"),  # a
-            _describe_cluster("cluster2b", "BOOTSTRAPPING"),  # b
-            _describe_cluster("cluster2a", "RUNNING"),        # a
-            _describe_cluster("cluster2b", "RUNNING"),        # b
-            _describe_cluster("cluster2a", "RUNNING"),        # a
-            _describe_cluster("cluster2b", "RUNNING"),        # b
-            _describe_cluster("cluster2a", "RUNNING"),        # a
-            _describe_cluster("cluster2b", "TERMINATING"),    # b
-            _describe_cluster("cluster2a", "RUNNING"),        # a
-            _describe_cluster("cluster2b", "TERMINATED"),     # b (finished)
-            _describe_cluster("cluster2a", "RUNNING"),        # a
-            _describe_cluster("cluster2b", "TERMINATING"),    # a
-            _describe_cluster("cluster2b", "TERMINATED"),     # b (finished)
-            _describe_cluster("cluster2b", "TERMINATED"),     # a (end of batch)
-            _describe_cluster("cluster2b", "TERMINATED"),     # b (end of batch)
+            self._describe_cluster("cluster2a", "STARTING"),       # a
+            self._describe_cluster("cluster2b", "STARTING"),       # b
+            self._describe_cluster("cluster2a", "BOOTSTRAPPING"),  # a
+            self._describe_cluster("cluster2b", "BOOTSTRAPPING"),  # b
+            self._describe_cluster("cluster2a", "RUNNING"),        # a
+            self._describe_cluster("cluster2b", "RUNNING"),        # b
+            self._describe_cluster("cluster2a", "RUNNING"),        # a
+            self._describe_cluster("cluster2b", "RUNNING"),        # b
+            self._describe_cluster("cluster2a", "RUNNING"),        # a
+            self._describe_cluster("cluster2b", "TERMINATING"),    # b
+            self._describe_cluster("cluster2a", "RUNNING"),        # a
+            self._describe_cluster("cluster2b", "TERMINATED"),     # b: terminal
+            self._describe_cluster("cluster2a", "RUNNING"),        # a
+            self._describe_cluster("cluster2b", "TERMINATING"),    # a
+            self._describe_cluster("cluster2b", "TERMINATED"),     # b: terminal
+            self._describe_cluster("cluster2b", "TERMINATED"),     # a (EOBatch)
+            self._describe_cluster("cluster2b", "TERMINATED"),     # b (EOBatch)
             # Finally, cluster3 is queried until it terminates
-            _describe_cluster("clusters3", "STARTING"),
-            _describe_cluster("clusters3", "BOOTSTRAPPING"),
-            _describe_cluster("clusters3", "RUNNING"),
-            _describe_cluster("clusters3", "RUNNING"),
-            _describe_cluster("clusters3", "TERMINATING"),
-            _describe_cluster("clusters3", "TERMINATED"),     # (all finished)
+            self._describe_cluster("clusters3", "STARTING"),
+            self._describe_cluster("clusters3", "BOOTSTRAPPING"),
+            self._describe_cluster("clusters3", "RUNNING"),
+            self._describe_cluster("clusters3", "RUNNING"),
+            self._describe_cluster("clusters3", "TERMINATING"),
+            self._describe_cluster("clusters3", "TERMINATED"),     # (all done)
         ]
         self.emr_client_mock.describe_cluster.side_effect = calls
         with patch('boto3.session.Session', self.boto3_session_mock):
@@ -124,23 +124,23 @@ class TestEmrRunJobFlows(unittest.TestCase):
     def test_execute_fails_fast_when_cluster2b_fails(self):
         calls = [
             # First, cluster1 is queried until it terminates
-            _describe_cluster("cluster1", "STARTING"),
-            _describe_cluster("cluster1", "BOOTSTRAPPING"),
-            _describe_cluster("cluster1", "RUNNING"),
-            _describe_cluster("cluster1", "RUNNING"),
-            _describe_cluster("cluster1", "TERMINATING"),
-            _describe_cluster("cluster1", "TERMINATED"),
+            self._describe_cluster("cluster1", "STARTING"),
+            self._describe_cluster("cluster1", "BOOTSTRAPPING"),
+            self._describe_cluster("cluster1", "RUNNING"),
+            self._describe_cluster("cluster1", "RUNNING"),
+            self._describe_cluster("cluster1", "TERMINATING"),
+            self._describe_cluster("cluster1", "TERMINATED"),
             # Then, both cluster2a and cluster2b are queried
-            _describe_cluster("cluster2a", "STARTING"),                # a
-            _describe_cluster("cluster2b", "STARTING"),                # b
-            _describe_cluster("cluster2a", "BOOTSTRAPPING"),           # a
-            _describe_cluster("cluster2b", "BOOTSTRAPPING"),           # b
-            _describe_cluster("cluster2a", "RUNNING"),                 # a
-            _describe_cluster("cluster2b", "RUNNING"),                 # b
-            _describe_cluster("cluster2a", "RUNNING"),                 # a
-            _describe_cluster("cluster2b", "RUNNING"),                 # b
-            _describe_cluster("cluster2a", "TERMINATING"),             # a
-            _describe_cluster("cluster2b", "TERMINATED_WITH_ERRORS"),  # b
+            self._describe_cluster("cluster2a", "STARTING"),                # a
+            self._describe_cluster("cluster2b", "STARTING"),                # b
+            self._describe_cluster("cluster2a", "BOOTSTRAPPING"),           # a
+            self._describe_cluster("cluster2b", "BOOTSTRAPPING"),           # b
+            self._describe_cluster("cluster2a", "RUNNING"),                 # a
+            self._describe_cluster("cluster2b", "RUNNING"),                 # b
+            self._describe_cluster("cluster2a", "RUNNING"),                 # a
+            self._describe_cluster("cluster2b", "RUNNING"),                 # b
+            self._describe_cluster("cluster2a", "TERMINATING"),             # a
+            self._describe_cluster("cluster2b", "TERMINATED_WITH_ERRORS"),  # b
             # We expect that no more calls are to be made, even though cluster3
             # hasn't even started and cluster2a isn't yet terminated.
         ]
@@ -209,7 +209,8 @@ class TestEmrRunJobFlows(unittest.TestCase):
                     'State': 'TERMINATED',
                     'StateChangeReason': {},
                     'Timeline': {
-                        'CreationDateTime': datetime.datetime(2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
+                        'CreationDateTime': datetime.datetime(
+                            2016, 6, 27, 21, 5, 2, 348000, tzinfo=tzlocal())}
                 },
                 'Tags': [
                     {'Key': 'app', 'Value': 'analytics'},
@@ -262,7 +263,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
             }
         }
 
-    def _describe_cluster(self, named, state):
+    def self._describe_cluster(self, named, state):
         return {
             'TERMINATED': self._terminated_cluster(named),
             'TERMINATED_WITH_ERRORS': self._failed_cluster(named),
