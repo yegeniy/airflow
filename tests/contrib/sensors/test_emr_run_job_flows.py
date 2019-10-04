@@ -39,7 +39,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
         # Mock out the emr_client (moto has incorrect response)
         self.emr_client_mock = MagicMock()
-        self.boto3_session_mock = None #set up in _expect
+        self.boto3_session_mock = None  # set up in _expect
         self.emr_run_job_flows = EmrRunJobFlows(
             task_id='test_task',
             job_flows=self._stubbed_job_flows([
