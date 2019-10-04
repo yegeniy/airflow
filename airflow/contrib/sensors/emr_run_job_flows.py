@@ -108,9 +108,7 @@ class EmrRunJobFlows(EmrBaseSensor):
         """
         C0111
         """
-        # TODO: Create these as needed, unless it makes mocking difficult...
-        emr_hook = EmrHook(emr_conn_id=self.emr_conn_id)
-        emr_conn = emr_hook.get_conn()
+        emr_conn = EmrHook(emr_conn_id=self.emr_conn_id).get_conn()
 
         responses = []
         for name, job_flow_id in self.current_batch.items():
@@ -133,7 +131,7 @@ class EmrRunJobFlows(EmrBaseSensor):
         # We're done with the current batch.
         if self.job_flows:
             self.log.info("Submitting next batch of clusters")
-            self.request_next(self.job_flows.pop(0), emr_hook)
+            self.request_next(self.job_flows.pop(0))
             return self.get_emr_response()
         # All batches are in a terminal state
         else:
@@ -141,13 +139,14 @@ class EmrRunJobFlows(EmrBaseSensor):
                           self.statuses)
             return responses[0]
 
-    def request_next(self, cluster_set, emr_hook):
+    def request_next(self, cluster_set):
         """
         C0111
         """
         self.current_batch = {}
         self.statuses.append({})
         errors = {}
+        emr_hook = EmrHook(emr_conn_id=self.emr_conn_id)
         for name, cluster_config in cluster_set.items():
             response = emr_hook.create_job_flow(cluster_config)
             if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
