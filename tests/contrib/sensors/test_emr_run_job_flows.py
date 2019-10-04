@@ -293,7 +293,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         }.get(state, self._running_cluster(named, state))
 
     def _create(self, config_or_name):
-        if type(config_or_name) is str:
+        if isinstance(config_or_name, str):
             return {
                 'ResponseMetadata': {
                     'HTTPStatusCode': 200
