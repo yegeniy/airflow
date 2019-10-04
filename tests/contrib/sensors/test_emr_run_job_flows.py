@@ -298,10 +298,10 @@ class TestEmrRunJobFlows(unittest.TestCase):
                 'ResponseMetadata': {
                     'HTTPStatusCode': 200
                 },
-                'JobFlowId': 'j-' + name
+                'JobFlowId': 'j-' + config_or_name
             }
         else:
-            return self._create(config['Name'])
+            return self._create(config_or_name['Name'])
 
 
 if __name__ == '__main__':
