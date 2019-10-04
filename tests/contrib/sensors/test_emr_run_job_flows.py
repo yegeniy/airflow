@@ -158,11 +158,14 @@ class TestEmrRunJobFlows(unittest.TestCase):
         emr_session_mock.client.return_value = self.emr_client_mock
         self.boto3_session_mock = MagicMock(return_value=emr_session_mock)
         with patch('boto3.session.Session', self.boto3_session_mock):
-            if failure:
-                with self.assertRaises(AirflowException):
+            try:
+                if failure:
+                    with self.assertRaises(AirflowException):
+                        self._verify_call_counts(create_calls, describe_calls)
+                else:
                     self._verify_call_counts(create_calls, describe_calls)
-            else:
-                self._verify_call_counts(create_calls, describe_calls)
+            except Exception as e:
+                raise e
 
     def _verify_call_counts(self, create_calls, describe_calls):
         self.emr_run_job_flows.execute(None)
