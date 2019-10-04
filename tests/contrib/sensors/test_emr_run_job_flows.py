@@ -39,6 +39,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
         # Mock out the emr_client (moto has incorrect response)
         self.emr_client_mock = MagicMock()
+        self.boto3_session_mock = None #set up in _expect
         self.emr_run_job_flows = EmrRunJobFlows(
             task_id='test_task',
             job_flows=self._stubbed_job_flows([
@@ -292,8 +293,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         }.get(state, self._running_cluster(named, state))
 
     def _create(self, config_or_name):
-        self.log.info("[DEBUG] _create(%s: %s)", config_or_name, 
-                      type(config_or_name))
+        print("[DEBUG] _create(%s: %s)", config_or_name, type(config_or_name))
         if isinstance(config_or_name, str):
             return {
                 'ResponseMetadata': {
