@@ -292,7 +292,8 @@ class TestEmrRunJobFlows(unittest.TestCase):
         }.get(state, self._running_cluster(named, state))
 
     def _create(self, config_or_name):
-        self.log.info("[DEBUG] _create(%s)", config_or_name)
+        self.log.info("[DEBUG] _create(%s: %s)", config_or_name, 
+                      type(config_or_name))
         if isinstance(config_or_name, str):
             return {
                 'ResponseMetadata': {
