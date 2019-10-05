@@ -283,7 +283,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
             }
         }
 
-    def _describe(self, ClusterId=ClusterId):
+    def _describe(self, ClusterId):
         print("[DEBUG] _describe()", ClusterId)
         state = self.states[ClusterId].pop(0)
         return {
