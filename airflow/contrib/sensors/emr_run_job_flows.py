@@ -112,13 +112,11 @@ class EmrRunJobFlows(EmrBaseSensor):
 
         responses = []
         for name, job_flow_id in self.current_batch.items():
-            # FIXME: info, not debug level...
-            self.log.info("Poking JobFlow {%s: %s}", name, job_flow_id)
+            self.log.debug("Poking JobFlow {%s: %s}", name, job_flow_id)
             response = emr_conn.describe_cluster(ClusterId=job_flow_id)
             responses.append(response)
             self.states()[name] = (job_flow_id, self._state_of(response))
-        # FIXME: info, not debug level...
-        self.log.info("Poked JobFlow states: %s", self.states())
+        self.log.debug("Poked JobFlow states: %s", self.states())
 
         for failed in filter(lambda r: self._state_of(r) in
                              EmrRunJobFlows.FAILED_STATE, responses):

@@ -42,7 +42,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.boto3_session = None  # This is set in _verify_job_flow_execution
         self.emr_run_job_flows = EmrRunJobFlows(
             task_id='test_task',
-            poke_interval=1,  # TODO: Can this be faster?
+            poke_interval=0,
             job_flows=self._stubbed_job_flows([
                 ["cluster1"],                # first batch is just this cluster
                 ["cluster2a", "cluster2b"],  # then these two run in parallel
@@ -114,6 +114,9 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.states["j-cluster3"].append("TERMINATING")
         self.states["j-cluster3"].append("TERMINATED")     # (all done)
 
+        self.emr_client.describe_cluster.side_effect = self._describe
+        self.emr_client.run_job_flow.side_effect = self._create
+
         self._verify_job_flow_execution()
 
     def test_execute_stops_when_cluster_in_batch_fails(self):
@@ -142,13 +145,12 @@ class TestEmrRunJobFlows(unittest.TestCase):
         # We expect that no more calls are to be made, even though cluster3
         # hasn't even started and cluster2a isn't yet terminated.
 
-        self._verify_job_flow_execution(failure=True)
-
-    def _verify_job_flow_execution(self, failure=False):
-        # TODO: Would be nice to assert the inputs at each step...
         self.emr_client.describe_cluster.side_effect = self._describe
         self.emr_client.run_job_flow.side_effect = self._create
 
+        self._verify_job_flow_execution(failure=True)
+
+    def _verify_job_flow_execution(self, failure=False):
         # Mock out the emr_client creator
         emr_session_mock = MagicMock()
         emr_session_mock.client.return_value = self.emr_client
@@ -170,8 +172,13 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.assertEqual(self.emr_client.run_job_flow.call_count, created)
         self.assertEqual(self.emr_client.describe_cluster.call_count, poked)
 
-    # def test_execute_fails_fast_on_cluster_creation(self):
-        # TODO: assertRaises(AirflowException):...
+    def test_execute_fails_fast_on_cluster_creation(self):
+        self.clusters = ["cluster1"]
+
+        self.emr_client.run_job_flow.side_effect = self._fail_to_create
+
+        with self.assertRaises(AirflowException):
+            self._execute_and_verify_expectations()
 
     # Convenience methods for describing clusters
     def _running_cluster(self, name, state="RUNNING"):
@@ -285,15 +292,20 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
     def _describe(self, *args, **kwargs):
         name = kwargs['ClusterId']
-        print("[DEBUG] _describe()", kwargs)
         state = self.states[name].pop(0)
         return {
             'TERMINATED': self._terminated_cluster(name),
             'TERMINATED_WITH_ERRORS': self._failed_cluster(name),
         }.get(state, self._running_cluster(name, state))
 
+    def _fail_to_create(self, *args, **kwargs):
+        return {
+            'ResponseMetadata': {
+                'HTTPStatusCode': 400
+            }
+        }
+
     def _create(self, *args, **kwargs):
-        print("[DEBUG] _create()", args, kwargs)
         return {
             'ResponseMetadata': {
                 'HTTPStatusCode': 200
