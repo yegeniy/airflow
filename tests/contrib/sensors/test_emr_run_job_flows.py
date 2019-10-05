@@ -286,11 +286,11 @@ class TestEmrRunJobFlows(unittest.TestCase):
     def _describe(self, *args, **kwargs):
         name = kwargs['ClusterId']
         print("[DEBUG] _describe()", kwargs)
-        state = self.states[kwargs].pop(0)
+        state = self.states[name].pop(0)
         return {
-            'TERMINATED': self._terminated_cluster(kwargs),
-            'TERMINATED_WITH_ERRORS': self._failed_cluster(kwargs),
-        }.get(state, self._running_cluster(kwargs, state))
+            'TERMINATED': self._terminated_cluster(name),
+            'TERMINATED_WITH_ERRORS': self._failed_cluster(name),
+        }.get(state, self._running_cluster(name, state))
 
     def _create(self, config):
         print("[DEBUG] _create()", config)
