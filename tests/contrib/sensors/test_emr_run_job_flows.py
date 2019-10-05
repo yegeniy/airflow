@@ -106,13 +106,13 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.states["j-cluster2b"].append("TERMINATED")     # b: terminal
         self.states["j-cluster2a"].append("TERMINATED")     # a (End Of Batch)
         self.states["j-cluster2b"].append("TERMINATED")     # b (End Of Batch)
-        self.states["j-clusters3"] = []
-        self.states["j-clusters3"].append("STARTING")
-        self.states["j-clusters3"].append("BOOTSTRAPPING")
-        self.states["j-clusters3"].append("RUNNING")
-        self.states["j-clusters3"].append("RUNNING")
-        self.states["j-clusters3"].append("TERMINATING")
-        self.states["j-clusters3"].append("TERMINATED")     # (all done)
+        self.states["j-cluster3"] = []
+        self.states["j-cluster3"].append("STARTING")
+        self.states["j-cluster3"].append("BOOTSTRAPPING")
+        self.states["j-cluster3"].append("RUNNING")
+        self.states["j-cluster3"].append("RUNNING")
+        self.states["j-cluster3"].append("TERMINATING")
+        self.states["j-cluster3"].append("TERMINATED")     # (all done)
 
         self._verify_job_flow_execution()
 
