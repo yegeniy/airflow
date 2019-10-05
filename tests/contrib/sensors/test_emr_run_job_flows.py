@@ -78,10 +78,10 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
     def test_execute_calls_until_all_clusters_reach_a_terminal_state(self):
         create_calls = [
-            self._create("cluster1"),
-            self._create("cluster2a"),
-            self._create("cluster2b"),
-            self._create("cluster3"),
+            self._create(self._cluster_config("cluster1")),
+            self._create(self._cluster_config("cluster2a")),
+            self._create(self._cluster_config("cluster2b")),
+            self._create(self._cluster_config("cluster3")),
         ]
         describe_calls = [
             # First, cluster1 then queried until it terminates
@@ -122,7 +122,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
     def test_execute_fails_fast_when_cluster2b_fails(self):
         create_calls = [
-            self._create("cluster1"),
+            self._create(self._cluster_config("cluster1")),
         ]
         describe_calls = [
             # First, cluster1 is queried until it terminates
@@ -295,18 +295,14 @@ class TestEmrRunJobFlows(unittest.TestCase):
             'TERMINATED_WITH_ERRORS': self._failed_cluster(named),
         }.get(state, self._running_cluster(named, state))
 
-    def _create(self, config_or_name):
-        print("[DEBUG] _create(%s: %s)", config_or_name, type(config_or_name))
-        if isinstance(config_or_name, str):
-            return {
-                'ResponseMetadata': {
-                    'HTTPStatusCode': 200
-                },
-                'JobFlowId': 'j-' + config_or_name
-            }
-        else:
-            return self._create(config_or_name['Name'])
-
+    def _create(self, config):
+        print("[DEBUG] _create(", config)
+        return {
+            'ResponseMetadata': {
+                'HTTPStatusCode': 200
+            },
+            'JobFlowId': 'j-' + config['Name']
+        }
 
 if __name__ == '__main__':
     unittest.main()
