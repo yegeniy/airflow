@@ -102,10 +102,9 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.states["j-cluster2b"].append("TERMINATING")    # b
         self.states["j-cluster2a"].append("RUNNING")        # a
         self.states["j-cluster2b"].append("TERMINATED")     # b: terminal
-        self.states["j-cluster2a"].append("RUNNING")        # a
-        self.states["j-cluster2b"].append("TERMINATING")    # a
+        self.states["j-cluster2a"].append("TERMINATING")    # a
         self.states["j-cluster2b"].append("TERMINATED")     # b: terminal
-        self.states["j-cluster2b"].append("TERMINATED")     # a (End Of Batch)
+        self.states["j-cluster2a"].append("TERMINATED")     # a (End Of Batch)
         self.states["j-cluster2b"].append("TERMINATED")     # b (End Of Batch)
         self.states["j-clusters3"] = []
         self.states["j-clusters3"].append("STARTING")
@@ -117,7 +116,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
         self._verify_job_flow_execution()
 
-    def test_execute_fails_fast_when_cluster2b_fails(self):
+    def test_execute_stops_when_cluster_in_batch_fails(self):
         self.clusters = ["cluster1"]
         # First, cluster1 is queried until it terminates
         self.states["j-cluster1"] = []
