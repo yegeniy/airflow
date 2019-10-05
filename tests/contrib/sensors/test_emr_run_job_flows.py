@@ -292,13 +292,13 @@ class TestEmrRunJobFlows(unittest.TestCase):
             'TERMINATED_WITH_ERRORS': self._failed_cluster(name),
         }.get(state, self._running_cluster(name, state))
 
-    def _create(self, config):
-        print("[DEBUG] _create()", config)
+    def _create(self, *args, **kwargs):
+        print("[DEBUG] _create()", args, kwargs)
         return {
             'ResponseMetadata': {
                 'HTTPStatusCode': 200
             },
-            'JobFlowId': 'j-' + config['Name']
+            'JobFlowId': 'j-' + kwargs['Name']
         }
 
 
