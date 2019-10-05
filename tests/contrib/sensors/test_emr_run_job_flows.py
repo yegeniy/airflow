@@ -42,6 +42,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         self.boto3_session = None  # This is set in _verify_job_flow_execution
         self.emr_run_job_flows = EmrRunJobFlows(
             task_id='test_task',
+            poke_interval=1,  # TODO: Can this be faster?
             job_flows=self._stubbed_job_flows([
                 ["cluster1"],                # first batch is just this cluster
                 ["cluster2a", "cluster2b"],  # then these two run in parallel
