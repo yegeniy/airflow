@@ -167,7 +167,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
     def _execute_and_verify_expectations(self):
         created = len(self.clusters)
-        poked = len(self.states)
+        poked = sum([len(cs) for cs in self.states])
         self.emr_run_job_flows.execute(None)
         self.assertEqual(self.emr_client.run_job_flow.call_count, created)
         self.assertEqual(self.emr_client.describe_cluster.call_count, poked)
