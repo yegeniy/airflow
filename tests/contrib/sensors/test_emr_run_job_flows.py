@@ -283,13 +283,13 @@ class TestEmrRunJobFlows(unittest.TestCase):
             }
         }
 
-    def _describe(self, ClusterId=named):
-        print("[DEBUG] _describe()", "ClusterId=", named)
-        state = self.states[named].pop(0)
+    def _describe(self, ClusterId=ClusterId):
+        print("[DEBUG] _describe()", ClusterId)
+        state = self.states[ClusterId].pop(0)
         return {
-            'TERMINATED': self._terminated_cluster(named),
-            'TERMINATED_WITH_ERRORS': self._failed_cluster(named),
-        }.get(state, self._running_cluster(named, state))
+            'TERMINATED': self._terminated_cluster(ClusterId),
+            'TERMINATED_WITH_ERRORS': self._failed_cluster(ClusterId),
+        }.get(state, self._running_cluster(ClusterId, state))
 
     def _create(self, config):
         print("[DEBUG] _create()", config)
@@ -299,6 +299,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
             },
             'JobFlowId': 'j-' + config['Name']
         }
+
 
 if __name__ == '__main__':
     unittest.main()
