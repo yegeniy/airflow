@@ -153,6 +153,13 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
         self._verify_job_flow_execution(failure=True)
 
+    def test_execute_stops_on_cluster_creation_failure(self):
+        self.clusters = ["cluster1"]
+        # Note that self.states is empty since there's nothing to poke.
+        self.emr_client.run_job_flow.side_effect = self._fail_to_create
+
+        self._verify_job_flow_execution(failure =True)
+
     def _verify_job_flow_execution(self, failure=False):
         # Mock out the emr_client creator
         emr_session_mock = MagicMock()
@@ -170,18 +177,10 @@ class TestEmrRunJobFlows(unittest.TestCase):
 
     def _execute_and_verify_expectations(self):
         created = len(self.clusters)
-        poked = sum([len(cs) for cs in self.states])
+        poked = sum([len(cs) for cs in self.states.values()])
         self.emr_run_job_flows.execute(None)
         self.assertEqual(self.emr_client.run_job_flow.call_count, created)
         self.assertEqual(self.emr_client.describe_cluster.call_count, poked)
-
-    def test_execute_fails_fast_on_cluster_creation(self):
-        self.clusters = ["cluster1"]
-
-        self.emr_client.run_job_flow.side_effect = self._fail_to_create
-
-        with self.assertRaises(AirflowException):
-            self._execute_and_verify_expectations()
 
     # Convenience methods for describing clusters
     def _running_cluster(self, name, state="RUNNING"):
