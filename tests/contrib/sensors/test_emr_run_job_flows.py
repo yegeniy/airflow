@@ -67,7 +67,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
             'ReleaseLabel': '5.11.0',
             'Instances': {
                 'KeepJobFlowAliveWhenNoSteps': False
-            }
+            },
             'Steps': [{
                 'Name': 'test_step',
                 'ActionOnFailure': 'TERMINATE_CLUSTER',
@@ -158,7 +158,7 @@ class TestEmrRunJobFlows(unittest.TestCase):
         # Note that self.states is empty since there's nothing to poke.
         self.emr_client.run_job_flow.side_effect = self._fail_to_create
 
-        self._verify_job_flow_execution(failure =True)
+        self._verify_job_flow_execution(failure=True)
 
     def _verify_job_flow_execution(self, failure=False):
         # Mock out the emr_client creator
