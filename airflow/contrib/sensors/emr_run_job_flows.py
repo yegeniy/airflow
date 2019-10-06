@@ -148,9 +148,7 @@ class EmrRunJobFlows(EmrBaseSensor):
         errors = {}
         emr_hook = EmrHook(emr_conn_id=self.emr_conn_id)
         for name, cluster_config in cluster_set.items():
-            self.log.info("[DEBUG] %s %s", name, cluster_config)
             response = emr_hook.create_job_flow(cluster_config)
-            self.log.info("[DEBUG] %s", response)
             if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
                 errors[name] = str(response)
             else:
