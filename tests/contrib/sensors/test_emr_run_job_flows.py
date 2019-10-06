@@ -65,6 +65,9 @@ class TestEmrRunJobFlows(unittest.TestCase):
         return {
             'Name': name,
             'ReleaseLabel': '5.11.0',
+            'Instances': {
+                'KeepJobFlowAliveWhenNoSteps': False
+            }
             'Steps': [{
                 'Name': 'test_step',
                 'ActionOnFailure': 'TERMINATE_CLUSTER',

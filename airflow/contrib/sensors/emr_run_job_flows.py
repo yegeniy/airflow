@@ -45,7 +45,7 @@ class EmrRunJobFlows(EmrBaseSensor):
     Airflow scheduler. Since we'll rely on EMR to terminate itself, any failed
     step will need to terminate the cluster and the cluster itself should
     auto-terminate as per [1]. In other words, you must set up each JobFlow to
-    auto-terminate (likely via its overrides) by setting
+    auto-terminate (likely via its overrides) by setting its Instances'
     `"KeepJobFlowAliveWhenNoSteps": False`. Also, consider setting each Step's
     `"ActionOnFailure": "TERMINATE_CLUSTER"` to allow failing-fast if your
     workflow allows for it.
