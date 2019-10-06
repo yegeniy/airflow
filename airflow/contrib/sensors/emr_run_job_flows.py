@@ -160,7 +160,7 @@ class EmrRunJobFlows(EmrBaseSensor):
         # TODO consider returning {"statuses": statuses, "errors": errors}
         if errors:
             self.log.error("errors: %s", errors)
-            raise AirflowException('JobFlow creation failed: ' + errors)
+            raise AirflowException("JobFlow creation failed: " + str(errors))
 
     def states(self):
         """
